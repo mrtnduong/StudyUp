@@ -88,7 +88,7 @@ class EventServiceImplTest {
 		
 		// setting the event date
 		
-		Date setDate = new Date(1998, 5, 22, 12, 40, 1);
+		Date setDate = new Date(28, 5, 22, 12, 40, 1);
 		
 		Event event = new Event();
 		event.setEventID(2);
@@ -114,24 +114,35 @@ class EventServiceImplTest {
 		assertEquals("Smith", student2.getLastName());
 		assertEquals("MarySmith@email.com", student2.getEmail());
 		assertEquals(2, student2.getId());
-		assertFalse(student2.getFirstName() == "Jack");
 	}
 	
 	@Test
 	void testAddStudentToEvent() throws StudyUpException {
 		Event event = new Event();
+		Event event2 = new Event();
+		event2.setEventID(1);
 		event = addEventTest();
 		DataStorage.eventData.put(event.getEventID(), event);
 		Student student2 = new Student();
 		student2.setFirstName("Mary");
 		student2.setLastName("Smith");
 		student2.setEmail("MarySmith@email.com");
-		student2.setId(1);
-
+		student2.setId(2);
+		
 		Assertions.assertThrows(StudyUpException.class, () -> {
-			eventServiceImpl.addStudentToEvent(null, 1);
+			eventServiceImpl.addStudentToEvent(student2, 3);
 		  });
 		eventServiceImpl.addStudentToEvent(student2, 2);
+		eventServiceImpl.addStudentToEvent(student2, 1);
+	}
+	
+	//tests whether if a past event is added, it counts as an active event
+	@Test
+	void testPastActiveEvents() throws StudyUpException {
+		Event event = new Event();
+		event = addEventTest();
+		DataStorage.eventData.put(event.getEventID(), event);
+		assertFalse(eventServiceImpl.getActiveEvents().contains(event));
 	}
 	
 	@Test
@@ -183,17 +194,6 @@ class EventServiceImplTest {
 		event = addEventTest();
 		DataStorage.eventData.put(event.getEventID(), event);
 		assertEquals(DataStorage.eventData.get(2).getName(), "Event 2");
-	}
-	
-	@Test
-	void addEventTestStudent() throws StudyUpException {
-		Event event = new Event();
-		event = addEventTest();
-		DataStorage.eventData.put(event.getEventID(), event);
-		// tests email then last name then first name
-		assertEquals(DataStorage.eventData.get(2).getStudents().get(2).getEmail(), event.getStudents().get(2).getEmail());
-		assertEquals(DataStorage.eventData.get(2).getStudents().get(2).getLastName(), event.getStudents().get(2).getLastName());
-		assertEquals(DataStorage.eventData.get(2).getStudents().get(2).getFirstName(), event.getStudents().get(2).getFirstName());
 	}
 	
 	@Test
