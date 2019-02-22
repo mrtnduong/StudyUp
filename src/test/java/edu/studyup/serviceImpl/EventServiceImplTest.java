@@ -23,6 +23,7 @@ import edu.studyup.util.StudyUpException;
 class EventServiceImplTest {
 
 	EventServiceImpl eventServiceImpl;
+	private Event event;
 
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
@@ -74,6 +75,22 @@ class EventServiceImplTest {
 		Assertions.assertThrows(StudyUpException.class, () -> {
 			eventServiceImpl.updateEventName(eventID, "Renamed Event 3");
 		  });
+	}
+	
+	@Test
+	void testEventNameLength () throws StudyUpException {
+		int eventID = 1;
+		eventServiceImpl.updateEventName(eventID, "Name that is way too long to fit");
+	}
+	
+	@Test
+	void testActiveEvents() throws StudyUpException {
+		for (Integer key : DataStorage.eventData.keySet())
+		{
+			if (!DataStorage.eventData.containsKey(key))
+				throw new StudyUpException("No event found at key");
+			assertTrue(eventServiceImpl.getActiveEvents().contains(DataStorage.eventData.get(key)));
+		}
 	}
 	
 	Event addEventTest() {
@@ -134,7 +151,7 @@ class EventServiceImplTest {
 		  });
 		eventServiceImpl.addStudentToEvent(student2, 2);
 		eventServiceImpl.addStudentToEvent(student2, 1);
-	}
+
 	
 	//tests whether if a past event is added, it counts as an active event
 	@Test
@@ -143,24 +160,6 @@ class EventServiceImplTest {
 		event = addEventTest();
 		DataStorage.eventData.put(event.getEventID(), event);
 		assertFalse(eventServiceImpl.getActiveEvents().contains(event));
-	}
-	
-	@Test
-	void testEventNameLength () throws StudyUpException {
-		int eventID = 1;
-		Assertions.assertThrows(StudyUpException.class, () -> {
-			eventServiceImpl.updateEventName(eventID, "Name that is way too long to fit");
-		  });
-	}
-	
-	@Test
-	void testActiveEvents() throws StudyUpException {
-		for (Integer key : DataStorage.eventData.keySet())
-		{
-			if (!DataStorage.eventData.containsKey(key))
-				throw new StudyUpException("No event found at key");
-			assertTrue(eventServiceImpl.getActiveEvents().contains(DataStorage.eventData.get(key)));
-		}
 	}
 		
 	@Test
@@ -194,6 +193,28 @@ class EventServiceImplTest {
 		event = addEventTest();
 		DataStorage.eventData.put(event.getEventID(), event);
 		assertEquals(DataStorage.eventData.get(2).getName(), "Event 2");
+	}
+	
+	@Test
+	void addEventTestStudent() throws StudyUpException {
+		Student student = new Student();
+		student.setFirstName("Jack");
+		student.setLastName("Black");
+		student.setEmail("JackBlack@email.com");
+		student.setId(1);
+		Event event = new Event();
+		event.setEventID(1);
+		event.setDate(new Date());
+		event.setName("Event 1");
+		Location location = new Location(-122, 37);
+		event.setLocation(location);
+		List<Student> eventStudents = new ArrayList<>();
+		eventStudents.add(student);
+		event.setStudents(eventStudents);
+		DataStorage.eventData.put(event.getEventID(), event);
+		// tests email then last name then first name
+		assertEquals(true, DataStorage.eventData.get(1).getStudents().contains(student));
+		
 	}
 	
 	@Test
