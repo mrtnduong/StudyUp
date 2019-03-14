@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-if [ -n $5 ]; then
-    export REDIS_HOST=$5
+if [ -n $1 ]; then
+   export REDIS_HOST=$1
 fi
 
-sed -i'' "s/%{REDIS_HOST}/${REDIS_HOST}/" /etc/nginx/nginx.conf
+sed -i "s/server.*:/server ${REDIS_HOST}:/" /etc/nginx/nginx.conf
 
-eval $(/usr/sbin/nginx -s reload)
+eval "$(/usr/sbin/nginx -s reload)"

@@ -16,6 +16,9 @@ RUN chmod +x /root/docker-entrypoint.sh
 # Invoke this script the moment the container comes up
 ENTRYPOINT [ "/root/docker-entrypoint.sh" ]
 
+COPY hotswap.sh /root/
+RUN chmod +x /root/hotswap.sh
+
 # Expose default port and start nginx
 EXPOSE 8888
 CMD ["/usr/sbin/nginx"]
